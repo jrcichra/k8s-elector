@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-FROM scratch
-
-COPY elector .
-
-ENTRYPOINT ["./elector"]
+FROM gcr.io/distroless/static-debian12:nonroot
+WORKDIR /app
+ARG TARGETARCH
+COPY elector-$TARGETARCH /app/elector
+ENTRYPOINT ["/app/elector"]
