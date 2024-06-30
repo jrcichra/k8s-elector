@@ -256,10 +256,12 @@ type patchLabel struct {
 // If the elector instance becomes the leader, a value of "leader" is set. Otherwise, a
 // value of "standby" is set.
 func updatePodLabel(cfg *ElectorConfig, clientset *kubernetes.Clientset, value string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
 
 	// First, get the Pod. We want to first check whether or not the Pod has the
 	// label key or not. If not, add it; if so, update it.
-	pod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(cfg.PodName, metav1.GetOptions{})
+	pod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(ctx, cfg.PodName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -279,10 +281,11 @@ func updatePodLabel(cfg *ElectorConfig, clientset *kubernetes.Clientset, value s
 		Value: value,
 	}}
 	payloadBytes, _ := json.Marshal(payload)
-	_, err = clientset.CoreV1().Pods(cfg.Namespace).Patch(
+	_, err = clientset.CoreV1().Pods(cfg.Namespace).Patch(ctx,
 		cfg.PodName,
 		types.JSONPatchType,
 		payloadBytes,
+		metav1.PatchOptions{},
 	)
 	return err
 }
