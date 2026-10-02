@@ -60,7 +60,7 @@ jobs:
         run: make build-amd64
       - name: Build arm64 version
         run: make build-arm64
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
